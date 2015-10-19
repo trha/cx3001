@@ -1,0 +1,20 @@
+0000 0000
+0001 0531
+0002 44d3
+//op rd rs rt
+//lw $rd, imm($rs) $rd = mem[imm + $rs]
+//sw $rd, imm($rs) mem[imm + $rs] = $rd
+//RegDST= 1 for SW and BEQ, and 0 for ALU and LW
+//ALUSrc= 1 for LW and SW and 0 for ALU and BEQ
+//sw $3, 4($1) mem[$1 + 4] = mem[0x24] = $3 = 0x40
+0003 8314
+0004 0000
+0005 0000
+0006 0000
+//lw $5, 4($1) $5 = 0x40
+0007 9514
+0008 0000
+0009 0000
+000a 0000
+//$3 = $5 + $1
+000b 0351
