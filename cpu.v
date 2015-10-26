@@ -36,6 +36,7 @@ module cpu(
   output branch,
   output [15:0] b,
   output [15:0] next_pc_exe,
+  output [15:0] next_pc_branch,
   output [15:0] imm_exe,
   output [15:0] rdata1_exe,
   output [15:0] rdata2_exe,
@@ -50,8 +51,6 @@ module cpu(
   output [15:0] alu_result,
   output [15:0] alu_result_mem,
   output [15:0] rdata2_mem,
-  output mem_wen_mem,
-  output mem_ren_mem,
   output mem_to_reg_mem,
   output reg_wen_mem,
   output [3:0] reg_waddr_mem,
@@ -93,20 +92,20 @@ module cpu(
   );
 
   wire pc_src = branch_exe && alu_result == 16'b0;
-  wire [15:0] next_pc_branch = next_pc_exe + imm_exe;
+  assign next_pc_branch = next_pc_exe + imm_exe;
   assign next_pc_final = pc_src ? next_pc_branch : next_pc;
  
   alu alu(.op(alu_op_exe), .a(rdata1_exe), .b(b_exe), .result(alu_result));
  
   exe_mem_reg exe_mem_reg(
-    .clk(clk), .rst(rst), .alu_result(alu_result), .rdata2(rdata2_exe), .mem_wen(mem_wen_exe), .mem_ren(mem_ren_exe),
+    .clk(clk), .rst(rst), .alu_result(alu_result), .rdata2(rdata2_exe),
     .mem_to_reg(mem_to_reg_exe), .reg_wen(reg_wen_exe), .reg_waddr(reg_waddr_exe), 
-    .alu_result_out(alu_result_mem), .rdata2_out(rdata2_mem), .mem_wen_out(mem_wen_mem), .mem_ren_out(mem_ren_mem),
+    .alu_result_out(alu_result_mem), .rdata2_out(rdata2_mem),
     .mem_to_reg_out(mem_to_reg_mem), .reg_wen_out(reg_wen_mem), .reg_waddr_out(reg_waddr_mem)
   );                
   
   memory#(.ROW_COUNT(256), .FILE("data.txt")) data_mem(
-    .clk(clk), .rst(rst), .ren(mem_ren_mem), .wen(mem_wen_mem), 
+    .clk(clk), .rst(rst), .ren(mem_ren_exe), .wen(mem_wen_exe), 
     .addr(alu_result), .wdata(rdata2_mem), .data_out(mem_rdata)
   );
   

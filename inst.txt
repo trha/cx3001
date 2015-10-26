@@ -18,3 +18,6 @@
 000a 0000
 //$3 = $5 + $1
 000b 0351
+//$rs; $rd, imm, meaning: PC <- nPC+imm, if $rs = $rd
+//if $10 == $10, pc = npc - 7 = 7
+000c aab9

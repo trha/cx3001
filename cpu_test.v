@@ -45,6 +45,7 @@ module cpu_test;
 	wire branch;
 	wire [15:0] b;
 	wire [15:0] next_pc_exe;
+  wire [15:0] next_pc_branch;
 	wire [15:0] imm_exe;
 	wire [15:0] rdata1_exe;
   wire [15:0] rdata2_exe;
@@ -59,8 +60,6 @@ module cpu_test;
 	wire [15:0] alu_result;
 	wire [15:0] alu_result_mem;
 	wire [15:0] rdata2_mem;
-	wire mem_wen_mem;
-	wire mem_ren_mem;
 	wire mem_to_reg_mem;
 	wire reg_wen_mem;
 	wire [3:0] reg_waddr_mem;
@@ -91,7 +90,8 @@ module cpu_test;
 		.mem_to_reg(mem_to_reg), 
 		.branch(branch), 
 		.b(b), 
-		.next_pc_exe(next_pc_exe), 
+		.next_pc_exe(next_pc_exe),
+    .next_pc_branch(next_pc_branch),
 		.imm_exe(imm_exe), 
 		.rdata1_exe(rdata1_exe), 
     .rdata2_exe(rdata2_exe),
@@ -106,8 +106,6 @@ module cpu_test;
 		.alu_result(alu_result), 
 		.alu_result_mem(alu_result_mem), 
 		.rdata2_mem(rdata2_mem), 
-		.mem_wen_mem(mem_wen_mem), 
-		.mem_ren_mem(mem_ren_mem), 
 		.mem_to_reg_mem(mem_to_reg_mem), 
 		.reg_wen_mem(reg_wen_mem), 
 		.reg_waddr_mem(reg_waddr_mem), 
