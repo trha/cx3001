@@ -107,7 +107,7 @@ module cpu(
   
   memory#(.ROW_COUNT(256), .FILE("data.txt")) data_mem(
     .clk(clk), .rst(rst), .ren(mem_ren_mem), .wen(mem_wen_mem), 
-    .addr(alu_result_mem), .wdata(rdata2_mem), .data_out(mem_rdata)
+    .addr(alu_result), .wdata(rdata2_mem), .data_out(mem_rdata)
   );
   
   mem_wb_reg mem_wb_reg(
