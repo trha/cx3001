@@ -29,7 +29,10 @@ module control(
   output reg mem_ren,
   output reg mem_wen,
   output reg mem_to_reg,
-  output reg branch
+  output reg branch,
+  output reg jump,
+  output reg jr,
+  output reg jal
 );
 
 always @ (*) begin
@@ -43,6 +46,9 @@ always @ (*) begin
       mem_wen = 1'b0;
       mem_to_reg = 1'b1;
       branch = 1'b0;
+      jump = 1'b0;
+      jr = 1'b0;
+      jal = 1'b0;
     end
     
     `SLL, `SRL: begin
@@ -54,6 +60,9 @@ always @ (*) begin
       mem_wen = 1'b0;
       mem_to_reg = 1'b1;
       branch = 1'b0;
+      jump = 1'b0;
+      jr = 1'b0;
+      jal = 1'b0;
     end
     
     `LW: begin
@@ -65,6 +74,9 @@ always @ (*) begin
       mem_wen = 1'b0;
       mem_to_reg = 1'b0;
       branch = 1'b0;
+      jump = 1'b0;
+      jr = 1'b0;
+      jal = 1'b0;
     end
     
     `SW: begin
@@ -76,6 +88,9 @@ always @ (*) begin
       mem_wen = 1'b1;
       mem_to_reg = 1'b1; //doesnt matter
       branch = 1'b0;
+      jump = 1'b0;
+      jr = 1'b0;
+      jal = 1'b0;
     end
     
     `BEQ: begin
@@ -87,6 +102,51 @@ always @ (*) begin
       mem_wen = 1'b0;
       mem_to_reg = 1'b1; //doesnt matter
       branch = 1'b1;
+      jump = 1'b0;
+      jr = 1'b0;
+      jal = 1'b0;
+    end
+    
+    `JUMP: begin
+      alu_op = `ADD; //doesnt matter
+      alu_src = 1'b1; //doesnt matter
+      reg_wen = 1'b0;  
+      reg_dst = 1'b1; //doesnt matter 
+      mem_ren = 1'b0;  
+      mem_wen = 1'b0; 
+      mem_to_reg = 1'b1; //doesnt matter
+      branch = 1'b0;
+      jump = 1'b1;
+      jr = 1'b0;
+      jal = 1'b0;
+    end
+    
+    `JR: begin
+      alu_op = `ADD; //doesnt matter
+      alu_src = 1'b1; //doesnt matter
+      reg_wen = 1'b0;  
+      reg_dst = 1'b1; //doesnt matter 
+      mem_ren = 1'b0;  
+      mem_wen = 1'b0; 
+      mem_to_reg = 1'b1; //doesnt matter
+      branch = 1'b0;
+      jump = 1'b0;
+      jr = 1'b1;
+      jal = 1'b0;
+    end
+    
+    `JAL: begin
+      alu_op = `ADD; //doesnt matter
+      alu_src = 1'b1; //doesnt matter
+      reg_wen = 1'b1;  
+      reg_dst = 1'b1; //doesnt matter 
+      mem_ren = 1'b0;  
+      mem_wen = 1'b0; 
+      mem_to_reg = 1'b1; //doesnt matter
+      branch = 1'b0;
+      jump = 1'b0;
+      jr = 1'b0;
+      jal = 1'b1;
     end
     
     

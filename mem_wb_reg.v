@@ -26,11 +26,16 @@ module mem_wb_reg(
    input [15:0] mem_rdata,
    input [15:0] alu_result,
    input mem_to_reg,
+   input jal,
+   input [15:0] next_pc,
+   
    output reg reg_wen_out,
    output reg [3:0] reg_waddr_out,
    output reg [15:0] mem_rdata_out,
    output reg [15:0] alu_result_out,
-   output reg mem_to_reg_out
+   output reg mem_to_reg_out,
+   output reg jal_out,
+   output reg [15:0] next_pc_out
 );
 
   always @ (posedge clk) begin
@@ -40,12 +45,16 @@ module mem_wb_reg(
       mem_rdata_out <= 16'b0;
       alu_result_out <= 16'b0;
       mem_to_reg_out <= 1'b0;
+      jal_out <= 1'b0;
+      next_pc_out <= 16'b0;
     end else begin
       reg_wen_out <= reg_wen;
       reg_waddr_out <= reg_waddr;
       mem_rdata_out <= mem_rdata;
       alu_result_out <= alu_result;
       mem_to_reg_out <= mem_to_reg;
+      jal_out <= jal;
+      next_pc_out <= next_pc;
     end
   end
 

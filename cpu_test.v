@@ -43,6 +43,10 @@ module cpu_test;
 	wire mem_wen;
 	wire mem_to_reg;
 	wire branch;
+  wire jal;
+  wire jal_exe;
+  wire jal_mem;
+  wire jal_wb;
 	wire [15:0] b;
 	wire [15:0] next_pc_exe;
   wire [15:0] next_pc_branch;
@@ -63,12 +67,15 @@ module cpu_test;
 	wire mem_to_reg_mem;
 	wire reg_wen_mem;
 	wire [3:0] reg_waddr_mem;
+  wire [15:0] next_pc_mem;
 	wire [15:0] mem_rdata;
 	wire reg_wen_wb;
 	wire [3:0] reg_waddr_wb;
 	wire [15:0] mem_rdata_wb;
 	wire [15:0] alu_result_wb;
+  wire [15:0] next_pc_wb;
 	wire mem_to_reg_wb;
+  wire [3:0] reg_waddr;
 	wire [15:0] reg_wdata;
 
 	// Instantiate the Unit Under Test (UUT)
@@ -89,6 +96,7 @@ module cpu_test;
 		.mem_wen(mem_wen), 
 		.mem_to_reg(mem_to_reg), 
 		.branch(branch), 
+    .jal(jal),
 		.b(b), 
 		.next_pc_exe(next_pc_exe),
     .next_pc_branch(next_pc_branch),
@@ -103,18 +111,24 @@ module cpu_test;
 		.mem_ren_exe(mem_ren_exe), 
 		.mem_to_reg_exe(mem_to_reg_exe), 
 		.branch_exe(branch_exe), 
+    .jal_exe(jal_exe),
 		.alu_result(alu_result), 
 		.alu_result_mem(alu_result_mem), 
-		.rdata2_mem(rdata2_mem), 
+		.rdata2_mem(rdata2_mem),
+    .next_pc_mem(next_pc_mem),
 		.mem_to_reg_mem(mem_to_reg_mem), 
 		.reg_wen_mem(reg_wen_mem), 
 		.reg_waddr_mem(reg_waddr_mem), 
+    .jal_mem(jal_mem),
 		.mem_rdata(mem_rdata), 
 		.reg_wen_wb(reg_wen_wb), 
 		.reg_waddr_wb(reg_waddr_wb), 
 		.mem_rdata_wb(mem_rdata_wb), 
 		.alu_result_wb(alu_result_wb), 
+    .next_pc_wb(next_pc_wb),
 		.mem_to_reg_wb(mem_to_reg_wb), 
+    .jal_wb(jal_wb),
+    .reg_waddr(reg_waddr),
 		.reg_wdata(reg_wdata)
 	);
   

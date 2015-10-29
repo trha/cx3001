@@ -33,6 +33,7 @@ module id_exe_reg(
   input mem_ren,
   input mem_to_reg,
   input branch,
+  input jal,
   
   output reg [15:0] next_pc_out,
   output reg [15:0] imm_out,
@@ -45,7 +46,8 @@ module id_exe_reg(
   output reg mem_wen_out,
   output reg mem_ren_out,
   output reg mem_to_reg_out,
-  output reg branch_out
+  output reg branch_out,
+  output reg jal_out
 );
   always @ (posedge clk) begin
     if (rst) begin
@@ -61,6 +63,7 @@ module id_exe_reg(
       mem_ren_out <= 1'b0;
       mem_to_reg_out <= 1'b0;
       branch_out <= 1'b0;
+      jal_out <= 1'b0;
     end else begin
       next_pc_out <= next_pc;
       imm_out <= imm;
@@ -74,6 +77,7 @@ module id_exe_reg(
       mem_ren_out <= mem_ren;
       mem_to_reg_out <= mem_to_reg;
       branch_out <= branch;
+      jal_out <= jal;
     end
   end
 endmodule

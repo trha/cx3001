@@ -34,6 +34,7 @@ module cpu(
   output mem_wen,
   output mem_to_reg,
   output branch,
+  output jal,
   output [15:0] b,
   output [15:0] next_pc_exe,
   output [15:0] next_pc_branch,
@@ -48,18 +49,24 @@ module cpu(
   output mem_ren_exe,
   output mem_to_reg_exe,
   output branch_exe,
+  output jal_exe,
   output [15:0] alu_result,
   output [15:0] alu_result_mem,
   output [15:0] rdata2_mem,
+  output [15:0] next_pc_mem,
   output mem_to_reg_mem,
   output reg_wen_mem,
+  output jal_mem,
   output [3:0] reg_waddr_mem,
   output [15:0] mem_rdata,
   output reg_wen_wb,
   output [3:0] reg_waddr_wb,
   output [15:0] mem_rdata_wb,
   output [15:0] alu_result_wb,
+  output [15:0] next_pc_wb,
   output mem_to_reg_wb,
+  output jal_wb,
+  output [3:0] reg_waddr,
   output [15:0] reg_wdata
 );
   assign next_pc = pc + 16'b1;
@@ -73,35 +80,43 @@ module cpu(
   wire [3:0] rt_or_imm = inst[3:0];
  
   control cu(.op_code(op_code), .alu_op(alu_op), .alu_src(alu_src), .reg_wen(reg_wen),
-             .reg_dst(reg_dst), .mem_ren(mem_ren), .mem_wen(mem_wen), .mem_to_reg(mem_to_reg), .branch(branch));
+             .reg_dst(reg_dst), .mem_ren(mem_ren), .mem_wen(mem_wen), .mem_to_reg(mem_to_reg), .branch(branch),
+             .jump(jump), .jr(jr), .jal(jal));
   
   wire [3:0] raddr2 = reg_dst ? rd : rt_or_imm;
   
+  assign reg_waddr = jal_wb ? 4'd15 : reg_waddr_wb;
   reg_file reg_file(.clk(clk), .rst(rst), .raddr1(rs), .raddr2(raddr2), .wen(reg_wen_wb),
-                    .waddr(reg_waddr_wb), .wdata(reg_wdata), .rdata1(rdata1), .rdata2(rdata2));
+                    .waddr(reg_waddr), .wdata(reg_wdata), .rdata1(rdata1), .rdata2(rdata2));
                     
+  wire [15:0] next_pc_jump = {next_pc[15:12], inst[11:0]};
+  wire [15:0] next_pc_jr = rdata1;
   wire [15:0] sign_extended_imm = {{12{inst[3]}}, rt_or_imm};
   assign b = alu_src ? sign_extended_imm : rdata2;
+  wire [15:0] pc_exe;
   id_exe_reg id_exe_reg(
-    .clk(clk), .rst(rst), .next_pc(next_pc), .imm(sign_extended_imm), .rdata1(rdata1), .rdata2(rdata2),
+    .clk(clk), .rst(rst), 
+    .next_pc(next_pc), .imm(sign_extended_imm), .rdata1(rdata1), .rdata2(rdata2),
     .reg_wen(reg_wen), .reg_waddr(inst[11:8]), .b(b), .alu_op(alu_op), .mem_wen(mem_wen),
-    .mem_ren(mem_ren), .mem_to_reg(mem_to_reg), .branch(branch), .next_pc_out(next_pc_exe),
-    .imm_out(imm_exe), .rdata1_out(rdata1_exe), .rdata2_out(rdata2_exe), .reg_wen_out(reg_wen_exe), .reg_waddr_out(reg_waddr_exe),
-    .b_out(b_exe), .alu_op_out(alu_op_exe), .mem_wen_out(mem_wen_exe), .mem_ren_out(mem_ren_exe), 
-    .mem_to_reg_out(mem_to_reg_exe), .branch_out(branch_exe)
+    .mem_ren(mem_ren), .mem_to_reg(mem_to_reg), .branch(branch), .jal(jal), 
+    
+    .next_pc_out(next_pc_exe), .imm_out(imm_exe), .rdata1_out(rdata1_exe), .rdata2_out(rdata2_exe), 
+    .reg_wen_out(reg_wen_exe), .reg_waddr_out(reg_waddr_exe), .b_out(b_exe), .alu_op_out(alu_op_exe), .mem_wen_out(mem_wen_exe), 
+    .mem_ren_out(mem_ren_exe), .mem_to_reg_out(mem_to_reg_exe), .branch_out(branch_exe), .jal_out(jal_exe)
   );
 
   wire pc_src = branch_exe && alu_result == 16'b0;
   assign next_pc_branch = next_pc_exe + imm_exe;
-  assign next_pc_final = pc_src ? next_pc_branch : next_pc;
+  assign next_pc_final = jr ? next_pc_jr : (jump ? next_pc_jump : (pc_src ? next_pc_branch : next_pc));
  
   alu alu(.op(alu_op_exe), .a(rdata1_exe), .b(b_exe), .result(alu_result));
  
+  wire [15:0] pc_mem;
   exe_mem_reg exe_mem_reg(
     .clk(clk), .rst(rst), .alu_result(alu_result), .rdata2(rdata2_exe),
-    .mem_to_reg(mem_to_reg_exe), .reg_wen(reg_wen_exe), .reg_waddr(reg_waddr_exe), 
+    .mem_to_reg(mem_to_reg_exe), .reg_wen(reg_wen_exe), .reg_waddr(reg_waddr_exe), .jal(jal_exe), .next_pc(next_pc_exe),
     .alu_result_out(alu_result_mem), .rdata2_out(rdata2_mem),
-    .mem_to_reg_out(mem_to_reg_mem), .reg_wen_out(reg_wen_mem), .reg_waddr_out(reg_waddr_mem)
+    .mem_to_reg_out(mem_to_reg_mem), .reg_wen_out(reg_wen_mem), .reg_waddr_out(reg_waddr_mem), .jal_out(jal_mem), .next_pc_out(next_pc_mem)
   );                
   
   memory#(.ROW_COUNT(256), .FILE("data.txt")) data_mem(
@@ -109,13 +124,15 @@ module cpu(
     .addr(alu_result), .wdata(rdata2_mem), .data_out(mem_rdata)
   );
   
+  wire [15:0] pc_wb;
+  
   mem_wb_reg mem_wb_reg(
     .clk(clk), .rst(rst), 
     .reg_wen(reg_wen_mem), .reg_waddr(reg_waddr_mem), .mem_rdata(mem_rdata), 
-    .alu_result(alu_result_mem), .mem_to_reg(mem_to_reg_mem), 
+    .alu_result(alu_result_mem), .mem_to_reg(mem_to_reg_mem), .jal(jal_mem), .next_pc(next_pc_mem),
     .reg_wen_out(reg_wen_wb), .reg_waddr_out(reg_waddr_wb), .mem_rdata_out(mem_rdata_wb), 
-    .alu_result_out(alu_result_wb), .mem_to_reg_out(mem_to_reg_wb)
+    .alu_result_out(alu_result_wb), .mem_to_reg_out(mem_to_reg_wb), .jal_out(jal_wb), .next_pc_out(next_pc_wb)
   );
   
-  assign reg_wdata = mem_to_reg_wb ? alu_result_wb : mem_rdata_wb;
+  assign reg_wdata = jal_wb ? next_pc_wb : (mem_to_reg_wb ? alu_result_wb : mem_rdata_wb);
 endmodule
