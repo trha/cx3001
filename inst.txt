@@ -21,3 +21,9 @@
 //$rs; $rd, imm, meaning: PC <- nPC+imm, if $rs = $rd
 //if $10 == $10, pc = npc - 7 = 7
 000c aab9
+//jr $7 = 000f
+000d c070
+000e 0531
+000f d011
+0010 0000
+0011 b002
