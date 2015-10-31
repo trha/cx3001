@@ -144,7 +144,7 @@ always @ (*) begin
       mem_wen = 1'b0; 
       mem_to_reg = 1'b1; //doesnt matter
       branch = 1'b0;
-      jump = 1'b0;
+      jump = 1'b1;
       jr = 1'b0;
       jal = 1'b1;
     end
